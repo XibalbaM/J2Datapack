@@ -13,10 +13,13 @@ import java.util.List;
 @Log4j(topic = "j2datapack")
 public class Namespace {
 
+    private static Namespace currentNamespace;
+    private static final List<Namespace> namespaces = new ArrayList<>();
+    private static final Namespace minecraft = new Namespace("minecraft", null);
+
     private final String name;
     private final Datapack datapack;
 
-    private final List<Advancement> advancements = new ArrayList<>();
     private final List<McFunction> functions = new ArrayList<>();
     private final List<Recipe> recipes = new ArrayList<>();
     private final List<Tag> tags = new ArrayList<>();
@@ -26,6 +29,9 @@ public class Namespace {
 
         this.name = name;
         this.datapack = datapack;
+
+        currentNamespace = this;
+        namespaces.add(this);
     }
 
     public static Namespace of(String name, Datapack datapack) {
@@ -33,22 +39,29 @@ public class Namespace {
         return new Namespace(name, datapack);
     }
 
+    public static Namespace getCurrentNamespace() {
+
+        return currentNamespace;
+    }
+
+    public static Namespace getNamespace(String name) {
+
+        currentNamespace = namespaces.stream().filter(namespace -> namespace.getName().equals(name)).findFirst().orElse(null);
+
+        return currentNamespace;
+    }
+
     public String getName() {
 
         return name;
-    }
-
-    public Namespace with(Advancement advancement) {
-
-        advancement.namespace = this;
-        advancements.add(advancement);
-        return this;
     }
 
     public Namespace with(Recipe recipe) {
 
         recipe.namespace = this;
         recipes.add(recipe);
+
+        currentNamespace = this;
         return this;
     }
 
@@ -62,24 +75,32 @@ public class Namespace {
             calledFunctions.put(on, function);
         }
 
+        currentNamespace = this;
         return this;
     }
 
     public Namespace with(Tag tag) {
 
+        if (tag.isFromMinecraft() && !name.equals("minecraft")) {
+
+            minecraft.with(tag);
+            return this;
+        }
         tag.namespace = this;
         tags.add(tag);
+
+        currentNamespace = this;
         return this;
-    }
-
-    public List<Advancement> getAdvancements() {
-
-        return advancements;
     }
 
     public List<McFunction> getFunctions() {
 
         return functions;
+    }
+
+    public McFunction getFunction(String name) {
+
+        return functions.stream().filter(function -> function.getName().equals(name)).findFirst().orElse(null);
     }
 
     public List<Recipe> getRecipes() {
@@ -92,12 +113,19 @@ public class Namespace {
         return tags;
     }
 
+    public static Namespace getMinecraft() {
+
+        return minecraft;
+    }
+
     public void generate(Path dataDir) throws IOException {
 
+        dataDir = dataDir.resolve(name);
         Path functionsDir = dataDir.resolve("functions");
         Path advancementsDir = dataDir.resolve("advancements");
         Path recipesDir = dataDir.resolve("recipes");
         Path tagsDir = dataDir.resolve("tags");
+        Path minecraftTagsDir = dataDir.resolve("tags");
 
         log.info("      Generating functions...");
         functionsDir.toFile().mkdirs();
@@ -105,18 +133,7 @@ public class Namespace {
 
             Path functionFile = functionsDir.resolve(function.getName() + ".mcfunction");
             log.info("         Generating " + functionFile.toAbsolutePath() + "...");
-            datapack.writeToFile(functionFile, function.generateFileContent());
-            log.info("         Done");
-        }
-        log.info("      Done");
-
-        log.info("      Generating advancements...");
-        advancementsDir.toFile().mkdirs();
-        for (Advancement advancement : advancements) {
-
-            Path advancementFile = advancementsDir.resolve(advancement.getName() + ".json");
-            log.info("         Generating " + advancementFile.toAbsolutePath() + "...");
-            datapack.writeToFile(advancementFile, advancement.generateFileContent());
+            Datapack.writeToFile(functionFile, function.generateFileContent());
             log.info("         Done");
         }
         log.info("      Done");
@@ -127,7 +144,7 @@ public class Namespace {
 
             Path recipeFile = recipesDir.resolve(recipe.getName() + ".json");
             log.info("         Generating " + recipeFile.toAbsolutePath() + "...");
-            datapack.writeToFile(recipeFile, recipe.generateFileContent());
+            Datapack.writeToFile(recipeFile, recipe.generateFileContent());
             log.info("         Done");
         }
         log.info("      Done");
@@ -143,9 +160,14 @@ public class Namespace {
 
             Path tagFile = tagsDir.resolve(tag.getType().getTagType() + "/" + tag.getName() + ".json");
             log.info("         Generating " + tagFile.toAbsolutePath() + "...");
-            datapack.writeToFile(tagFile, tag.generateFileContent());
+            Datapack.writeToFile(tagFile, tag.generateFileContent());
             log.info("         Done");
         }
         log.info("      Done");
+    }
+
+    public Datapack getDatapack() {
+
+        return datapack;
     }
 }

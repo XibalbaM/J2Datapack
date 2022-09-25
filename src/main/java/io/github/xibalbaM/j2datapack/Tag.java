@@ -74,6 +74,11 @@ public class Tag extends NamespacePart {
         return this;
     }
 
+    public Tag with(NamespacePart part) {
+        values.add(part.getNamespace().getName() + ":" + part.getName());
+        return this;
+    }
+
     public TagType getType() {
 
         return type;
@@ -84,9 +89,8 @@ public class Tag extends NamespacePart {
 
         StringBuilder builder = new StringBuilder("{\n");
 
-        if (replace) {
-            builder.append("    \"replace\": true,\n");
-        }
+        builder.append("    \"replace\": ").append(replace ? "true" : "false").append(",\n");
+
 
         builder.append("    \"values\": [\n");
         for (String value : values) {
@@ -96,5 +100,10 @@ public class Tag extends NamespacePart {
         builder.append("    ]\n}");
 
         return builder.toString();
+    }
+
+    public boolean isFromMinecraft() {
+
+        return fromMinecraft;
     }
 }

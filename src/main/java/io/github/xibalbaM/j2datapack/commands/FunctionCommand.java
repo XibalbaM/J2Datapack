@@ -9,7 +9,7 @@ public class FunctionCommand implements ICommand {
     private final String function;
 
     public FunctionCommand(@NotNull McFunction function) {
-        this.function = function.getNamespace() + ":" + function.getName();
+        this.function = function.getNamespace().getName() + ":" + function.getName();
     }
 
     public static FunctionCommand of(@NotNull McFunction function) {

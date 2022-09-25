@@ -9,8 +9,7 @@ public enum MinecraftTags {
     MINEABLE_AXE(TagType.BLOCKS, "mineable/axe"),
     MINEABLE_PICKAXE(TagType.BLOCKS, "mineable/pickaxe"),
     MINEABLE_SHOVEL(TagType.BLOCKS, "mineable/shovel"),
-    MINEABLE_HOE(TagType.BLOCKS, "mineable/hoe"),
-    ACACIA_LOGS(TagType.BLOCKS, "acacia_logs");
+    MINEABLE_HOE(TagType.BLOCKS, "mineable/hoe");
 
     private final TagType tagType;
     private final String name;
