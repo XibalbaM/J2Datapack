@@ -53,7 +53,14 @@ public class Nbt {
                 Nbt.class,
                 byte[].class,
                 int[].class,
-                long[].class
+                long[].class,
+                Byte.class,
+                Boolean.class,
+                Short.class,
+                Integer.class,
+                Long.class,
+                Float.class,
+                Double.class
         );
 
         private final Object data;
