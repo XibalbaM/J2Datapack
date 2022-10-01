@@ -85,7 +85,7 @@ public class Tag extends NamespacePart {
     }
 
     @Override
-    public String generateFileContent() {
+    public String generateContent() {
 
         StringBuilder builder = new StringBuilder("{\n");
 

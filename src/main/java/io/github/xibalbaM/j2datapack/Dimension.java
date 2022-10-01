@@ -1,8 +1,8 @@
 package io.github.xibalbaM.j2datapack;
 
-public class Recipe extends NamespacePart {
+public class Dimension extends NamespacePart {
 
-    public Recipe(String name) {
+    public Dimension(String name) {
 
         super(name);
     }
@@ -10,6 +10,6 @@ public class Recipe extends NamespacePart {
     @Override
     public String generateContent() {
 
-        return "WIP";
+        return "";
     }
 }

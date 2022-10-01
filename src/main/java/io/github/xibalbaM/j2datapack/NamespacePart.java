@@ -20,5 +20,10 @@ public abstract class NamespacePart {
         return namespace;
     }
 
-    public abstract String generateFileContent();
+    public String getId() {
+
+        return namespace.getName() + ":" + name;
+    }
+
+    public abstract String generateContent();
 }

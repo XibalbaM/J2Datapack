@@ -1,25 +1,27 @@
 package io.github.xibalbaM.j2datapack;
 
-import io.github.xibalbaM.j2datapack.commands.SayCommand;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class DatapackTest {
 
     @Test
     public void test() throws IOException {
 
-        //TODO : more commands, default functions, recipes, advancements, loot tables, etc.
+        //TODO: Predicates, dimensions
+        //TODO : more commands, default functions, recipes, advancements, loot tables, Setblock facing position, etc.
 
-        Datapack datapack = new Datapack("test", "1.16.5", PackFormat.FORMAT_1_19_to_1_19_2);
+        Datapack datapack = new Datapack("test", "Test datapack", PackFormat.FORMAT_1_19_to_1_19_2);
 
-        datapack.withNamespace(Namespace.of("test", datapack)
-                .with(McFunction.of("test")
-                        .command(SayCommand.message("Hello world!"))
-                )
+        Namespace namespace = new Namespace("test", datapack);
+        datapack.withNamespace(namespace);
+
+        namespace.with(
+                new McFunction("test").command(Position.of(Position.Type.RELATIVE).dataRemove("Items"))
         );
 
-        datapack.generate();
+        datapack.generate(Path.of(Datapack.DEFAULT_MINECRAFT_SAVE_PATH + "/J2Datapack/datapacks"));
     }
 }

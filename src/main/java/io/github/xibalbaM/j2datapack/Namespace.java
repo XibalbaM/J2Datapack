@@ -1,5 +1,7 @@
 package io.github.xibalbaM.j2datapack;
 
+import io.github.xibalbaM.j2datapack.commands.CustomCommand;
+import io.github.xibalbaM.j2datapack.commands.FunctionCommand;
 import io.github.xibalbaM.j2datapack.tags.TagType;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -23,6 +25,7 @@ public class Namespace {
     private final List<McFunction> functions = new ArrayList<>();
     private final List<Recipe> recipes = new ArrayList<>();
     private final List<Tag> tags = new ArrayList<>();
+    private final List<Scoreboard> scoreboards = new ArrayList<>();
     private final MultiValuedMap<CallOn, McFunction> calledFunctions = new ArrayListValuedHashMap<>();
 
     public Namespace(String name, Datapack datapack) {
@@ -93,6 +96,15 @@ public class Namespace {
         return this;
     }
 
+    public Namespace with(Scoreboard scoreboard) {
+
+        scoreboard.namespace = this;
+        scoreboards.add(scoreboard);
+
+        currentNamespace = this;
+        return this;
+    }
+
     public List<McFunction> getFunctions() {
 
         return functions;
@@ -113,12 +125,59 @@ public class Namespace {
         return tags;
     }
 
+    public List<Scoreboard> getScoreboards() {
+
+        return scoreboards;
+    }
+
+    public Scoreboard getScoreboard(String name) {
+
+        return scoreboards.stream().filter(scoreboard -> scoreboard.getName().equals(name)).findFirst().orElse(null);
+    }
+
     public static Namespace getMinecraft() {
 
         return minecraft;
     }
 
     public void generate(Path dataDir) throws IOException {
+
+        if (this != minecraft) {
+
+            McFunction load = new McFunction("sys-load");
+            for (Scoreboard scoreboard : scoreboards) {
+
+                load.command(CustomCommand.of(scoreboard.generateContent()));
+            }
+            for (McFunction function : calledFunctions.get(CallOn.LOAD)) {
+
+                load.command(FunctionCommand.of(function));
+            }
+            with(load);
+            getMinecraft().with(Tag.minecraft(MinecraftTags.LOAD).with(getName(), load.getName()));
+
+            McFunction uninstall = new McFunction("sys-uninstall");
+            for (Scoreboard scoreboard : scoreboards) {
+
+                uninstall.command(CustomCommand.of(scoreboard.generateUninstallContent()));
+
+            }
+            for (McFunction function : calledFunctions.get(CallOn.UNLOAD)) {
+
+                uninstall.command(FunctionCommand.of(function));
+            }
+            with(uninstall);
+
+            McFunction tick = new McFunction("sys-tick");
+            for (McFunction function : calledFunctions.get(CallOn.TICK)) {
+
+                tick.command(FunctionCommand.of(function));
+            }
+            with(tick);
+            getMinecraft().with(Tag.minecraft(MinecraftTags.TICK).with(getName(), "sys-tick"));
+        }
+
+
 
         dataDir = dataDir.resolve(name);
         Path functionsDir = dataDir.resolve("functions");
@@ -133,7 +192,7 @@ public class Namespace {
 
             Path functionFile = functionsDir.resolve(function.getName() + ".mcfunction");
             log.info("         Generating " + functionFile.toAbsolutePath() + "...");
-            Datapack.writeToFile(functionFile, function.generateFileContent());
+            Datapack.writeToFile(functionFile, function.generateContent());
             log.info("         Done");
         }
         log.info("      Done");
@@ -144,7 +203,7 @@ public class Namespace {
 
             Path recipeFile = recipesDir.resolve(recipe.getName() + ".json");
             log.info("         Generating " + recipeFile.toAbsolutePath() + "...");
-            Datapack.writeToFile(recipeFile, recipe.generateFileContent());
+            Datapack.writeToFile(recipeFile, recipe.generateContent());
             log.info("         Done");
         }
         log.info("      Done");
@@ -160,7 +219,7 @@ public class Namespace {
 
             Path tagFile = tagsDir.resolve(tag.getType().getTagType() + "/" + tag.getName() + ".json");
             log.info("         Generating " + tagFile.toAbsolutePath() + "...");
-            Datapack.writeToFile(tagFile, tag.generateFileContent());
+            Datapack.writeToFile(tagFile, tag.generateContent());
             log.info("         Done");
         }
         log.info("      Done");

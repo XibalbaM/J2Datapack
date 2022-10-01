@@ -2,6 +2,7 @@ package io.github.xibalbaM.j2datapack.commands;
 
 import io.github.xibalbaM.j2datapack.Item;
 import io.github.xibalbaM.j2datapack.PackFormat;
+import io.github.xibalbaM.j2datapack.Selector;
 
 public class GiveCommand implements ICommand {
 
@@ -50,7 +51,7 @@ public class GiveCommand implements ICommand {
     @Override
     public String getCommand() {
 
-        return "give " + target.getSelector() + " " + item.getId() + " " + count + " " + item.getNbt();
+        return "give " + target.getSelector() + " " + item.getId() + item.getNbt() + " " + count;
     }
 
     @Override

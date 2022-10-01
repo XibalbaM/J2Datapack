@@ -16,6 +16,8 @@ import java.util.List;
 @Log4j(topic = "j2datapack")
 public class Datapack {
 
+    public static final String DEFAULT_MINECRAFT_SAVE_PATH = System.getProperty("user.home") + "/AppData/Roaming/.minecraft/saves/";
+
     private final String name, description;
     private final int packFormat;
     private final List<Namespace> namespaces = new ArrayList<>();
@@ -66,10 +68,23 @@ public class Datapack {
 
         log.info("Generating data folder...");
         contentDir.toFile().mkdirs();
+        Namespace minecraft = null;
         for (Namespace namespace : namespaces) {
+
+            if (namespace.getName().equals("minecraft")) {
+
+                minecraft = namespace;
+                continue;
+            }
 
             log.info("  Generating namespace " + namespace.getName() + "...");
             namespace.generate(contentDir);
+            log.info("  Done");
+        }
+        if (minecraft != null) {
+
+            log.info("  Generating namespace " + minecraft.getName() + "...");
+            minecraft.generate(contentDir);
             log.info("  Done");
         }
         log.info("Done");

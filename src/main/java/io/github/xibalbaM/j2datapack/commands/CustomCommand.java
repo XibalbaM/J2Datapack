@@ -22,6 +22,11 @@ public class CustomCommand implements ICommand {
         }
     }
 
+    public static CustomCommand of(String command, PackFormat... packFormats) {
+
+        return new CustomCommand(command, packFormats);
+    }
+
     @Override
     public String getCommand() {
 
