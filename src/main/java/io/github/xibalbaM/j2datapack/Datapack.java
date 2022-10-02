@@ -103,6 +103,10 @@ public class Datapack {
 
     static void writeToFile(@NotNull Path path, String content) throws IOException {
 
+        if (!path.toFile().getParentFile().exists()) {
+
+            path.toFile().getParentFile().mkdirs();
+        }
         path.toFile().createNewFile();
         @Cleanup
         FileWriter fileWriter = new FileWriter(path.toFile());

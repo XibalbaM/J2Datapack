@@ -92,9 +92,7 @@ public class Nbt {
 
         public String getValue() {
 
-            if (data instanceof String) {
-                return "\"" + data + "\"";
-            } else if (data instanceof List) {
+            if (data instanceof List) {
                 StringBuilder list = new StringBuilder("[");
                 for (Object o : (List) data) {
                     list.append( ( (Data) o).getValue()).append(",");
@@ -128,6 +126,20 @@ public class Nbt {
                 longs.deleteCharAt(longs.length() - 1);
                 longs.append("]");
                 return longs.toString();
+            } else if (data instanceof Integer) {
+                return data + "i";
+            } else if (data instanceof Long) {
+                return data + "L";
+            } else if (data instanceof Float) {
+                return data + "f";
+            } else if (data instanceof Double) {
+                return data + "d";
+            } else if (data instanceof String) {
+                if (((String) data).startsWith("[") || ((String) data).startsWith("{")) {
+                    return data.toString();
+                } else {
+                    return "\"" + data + "\"";
+                }
             } else {
                 return data.toString();
             }
